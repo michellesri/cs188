@@ -87,7 +87,22 @@ def depthFirstSearch(problem):
     print "Start's successors:", problem.getSuccessors(problem.getStartState())
     """
     "*** YOUR CODE HERE ***"
+    print "Start:", problem.getStartState()
+    print "Is the start a goal?", problem.isGoalState(problem.getStartState())
+    print "Start's successors:", problem.getSuccessors(problem.getStartState())
+    
+    dfsStack = util.Stack()
+    
+
+    startState = problem.getStartState()
+    successors = problem.getSuccessors()
     util.raiseNotDefined()
+    
+    # get successors 
+    # put successors in stack or Queue
+    
+    # write function that picks which one to take out of queue / Stack
+    
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
