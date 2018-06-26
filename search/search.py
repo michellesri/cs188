@@ -112,11 +112,22 @@ def depthFirstSearch(problem):
     
     while not problem.isGoalState(currentState):
         currentNode = Node(currentState)
+        
+        # currentStateAlreadyExists = False
+        # for node in nodeArray:
+        #     if node.val == currentState:
+        #         currentStateAlreadyExists = True
+        #         break
+        # 
+        # if (currentStateAlreadyExists):
+        #     continue
+                
+        
+        #TODO: (5,4) and (5,4) don't have the same previous node????
         nodeArray.append(currentNode)
 
         currentSuccessors = problem.getSuccessors(currentState)
         sortedList = []
-
         
         #check to see if successor node already exists before creating a new node
         for state in currentSuccessors:
