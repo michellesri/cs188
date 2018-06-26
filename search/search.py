@@ -16,14 +16,6 @@ In search.py, you will implement generic search algorithms which are called by
 Pacman agents (in searchAgents.py).
 """
 
-class Node:
-    def __init__(self,val):
-        self.val = val
-        self.previous = None
-    
-    def __str__(self):
-        return str(self.val)
-
 import util
 
 class SearchProblem:
@@ -98,104 +90,44 @@ def depthFirstSearch(problem):
     print "Is the start a goal?", problem.isGoalState(problem.getStartState())
     print "Start's successors:", problem.getSuccessors(problem.getStartState())
     
-    dfsStack = util.Stack()
+    fringeStack = util.Stack()
+    closed = []
     startState = problem.getStartState()
-    # successors = problem.getSuccessors(startState)
-    # goalState = problem.isGoalState()    
-    
-    dfsStack.push(startState)
+    fringeStack.push((startState, []))
 
-    itemsInStack = []
-    currentState = dfsStack.pop()
-    
-    nodeArray = []
-    
-    while not problem.isGoalState(currentState):
-        currentNode = Node(currentState)
-        
-        # currentStateAlreadyExists = False
-        # for node in nodeArray:
-        #     if node.val == currentState:
-        #         currentStateAlreadyExists = True
-        #         break
-        # 
-        # if (currentStateAlreadyExists):
-        #     continue
-                
-        
-        #TODO: (5,4) and (5,4) don't have the same previous node????
-        nodeArray.append(currentNode)
-
-        currentSuccessors = problem.getSuccessors(currentState)
-        sortedList = []
-        
-        #check to see if successor node already exists before creating a new node
-        for state in currentSuccessors:
-            successor, action, stepCost = state
-            
-            # don't re-add a successor
-            successorNodeAlreadyExists = False
-            for node in nodeArray:
-                if node.val == successor:
-                    successorNodeAlreadyExists = True
-            if not successorNodeAlreadyExists:
-                    successorNode = Node(successor)
-                    successorNode.previous = currentNode
-                    nodeArray.append(successorNode)
-            
-            index = 0
-            for sortedItem in sortedList:
-                sortedSuccessor, sortedAction, sortedStepCost = sortedItem
-                if stepCost < sortedStepCost:
-                    index += 1
-            sortedList.insert(index, state)
-        
-        # add all sorted items to stack
-        for item in sortedList:
-            canAddItem = True
-            for thing in itemsInStack:
-                if item[0] == thing[0]: # if it's already in the stack don't add it
-                    canAddItem = False
-            if canAddItem:
-                dfsStack.push(item[0])
-                itemsInStack.append(item)
-
-        currentState = dfsStack.pop()
-
-        problem.getSuccessors(currentState)
-        
-    pathList = []
-    currentNode = nodeArray[len(nodeArray) - 1]
-    
-    
-    for node in nodeArray:
-        print("nodePrevious:")
-        print(node.previous)
-        print("node:")
-        print(node)
-        print("  ")
-        
-    while currentNode:
-        print("currentNode:")
-        print(currentNode)
-        pathList.append(currentNode.val)
-        currentNode = currentNode.previous
-
-    return pathList
-    # util.raiseNotDefined()
-    
-    # get successors 
-    # put successors in stack or Queue
-    
-    # write function that picks which one to take out of queue / Stack
-    
-    #return the path it took not all the nodes _expanded
+    while not fringeStack.isEmpty():
+        currentNode, currentActions = fringeStack.pop()
+        if problem.isGoalState(currentNode):
+            return currentActions
+        if currentNode not in closed:
+            closed.append(currentNode)
+            successors = problem.getSuccessors(currentNode)
+            for child in successors:
+                # successor, action, stepCost
+                s, a, sc = child
+                fringeStack.push((s, currentActions + [a]))
+    return []
     
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    fringeQueue = util.Queue()
+    closed = []
+    startState = problem.getStartState()
+    fringeQueue.push((startState, []))
+
+    while not fringeQueue.isEmpty():
+        currentNode, currentActions = fringeQueue.pop()
+        if problem.isGoalState(currentNode):
+            return currentActions
+        if currentNode not in closed:
+            closed.append(currentNode)
+            successors = problem.getSuccessors(currentNode)
+            for child in successors:
+                # successor, action, stepCost
+                s, a, sc = child
+                fringeQueue.push((s, currentActions + [a]))
+    return []
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
