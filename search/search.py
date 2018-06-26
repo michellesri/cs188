@@ -85,7 +85,6 @@ def depthFirstSearch(problem):
     print "Is the start a goal?", problem.isGoalState(problem.getStartState())
     print "Start's successors:", problem.getSuccessors(problem.getStartState())
     """
-    "*** YOUR CODE HERE ***"
     print "Start:", problem.getStartState()
     print "Is the start a goal?", problem.isGoalState(problem.getStartState())
     print "Start's successors:", problem.getSuccessors(problem.getStartState())
@@ -131,8 +130,23 @@ def breadthFirstSearch(problem):
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    fringePQ = util.PriorityQueue()
+    closed = []
+    startState = problem.getStartState()
+    fringePQ.push((startState, []), 0)
+    while not fringePQ.isEmpty():
+        currentNode, currentActions = fringePQ.pop()
+        if problem.isGoalState(currentNode):
+            return currentActions
+        if currentNode not in closed:
+            closed.append(currentNode)
+            successors = problem.getSuccessors(currentNode)
+            for child in successors:
+                # successor, action, stepCost
+                s, a, sc = child
+                fringePQ.push((s, currentActions + [a]), 
+                    problem.getCostOfActions(currentActions) + sc)
+    return []
 
 def nullHeuristic(state, problem=None):
     """
@@ -143,9 +157,23 @@ def nullHeuristic(state, problem=None):
 
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
-
+    fringePQ = util.PriorityQueue()
+    closed = []
+    startState = problem.getStartState()
+    fringePQ.push((startState, []), 0)
+    while not fringePQ.isEmpty():
+        currentNode, currentActions = fringePQ.pop()
+        if problem.isGoalState(currentNode):
+            return currentActions
+        if currentNode not in closed:
+            closed.append(currentNode)
+            successors = problem.getSuccessors(currentNode)
+            for child in successors:
+                # successor, action, stepCost
+                s, a, sc = child
+                fringePQ.push((s, currentActions + [a]), 
+                    problem.getCostOfActions(currentActions) + sc + heuristic(s, problem))
+    return []
 
 # Abbreviations
 bfs = breadthFirstSearch
