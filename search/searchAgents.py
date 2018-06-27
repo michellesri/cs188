@@ -4,7 +4,7 @@
 # educational purposes provided that (1) you do not distribute or publish
 # solutions, (2) you retain this notice, and (3) you provide clear
 # attribution to UC Berkeley, including a link to http://ai.berkeley.edu.
-# 
+#
 # Attribution Information: The Pacman AI projects were developed at UC Berkeley.
 # The core projects and autograders were primarily created by John DeNero
 # (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
@@ -277,6 +277,7 @@ class CornersProblem(search.SearchProblem):
         """
         Stores the walls, pacman's starting position and corners.
         """
+        self.startingGameState = startingGameState
         self.walls = startingGameState.getWalls()
         self.startingPosition = startingGameState.getPacmanPosition()
         top, right = self.walls.height-2, self.walls.width-2
@@ -287,22 +288,24 @@ class CornersProblem(search.SearchProblem):
         self._expanded = 0 # DO NOT CHANGE; Number of search nodes expanded
         # Please add any code here which you would like to use
         # in initializing the problem
-        "*** YOUR CODE HERE ***"
 
     def getStartState(self):
         """
         Returns the start state (in your state space, not the full Pacman state
         space)
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        cornersReached = [False, False, False, False]
+        state = [self.startingPosition, cornersReached]
+        return state
 
     def isGoalState(self, state):
         """
         Returns whether this search state is a goal state of the problem.
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        for bool in state[1]:
+            if not bool:
+                return False
+        return True
 
     def getSuccessors(self, state):
         """
@@ -319,14 +322,32 @@ class CornersProblem(search.SearchProblem):
         for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
             # Add a successor state to the successor list if the action is legal
             # Here's a code snippet for figuring out whether a new position hits a wall:
-            #   x,y = currentPosition
-            #   dx, dy = Actions.directionToVector(action)
-            #   nextx, nexty = int(x + dx), int(y + dy)
-            #   hitsWall = self.walls[nextx][nexty]
+              x,y = state[0]
+              dx, dy = Actions.directionToVector(action)
+              nextx, nexty = int(x + dx), int(y + dy)
+              hitsWall = self.walls[nextx][nexty]
 
-            "*** YOUR CODE HERE ***"
+              # if it doesn't hit a walls
+                # check if visited a corner
+                # update state list of booleans
+                # append succesor to list
+
+              if not hitsWall:
+                  index = 0
+                  newState = [False, False, False, False]
+                  for corner in self.corners:
+                      if (nextx, nexty) == corner:
+                          # print(corner)
+                          newState[index] = True
+                      else:
+                          newState[index] = state[1][index]
+                      index += 1
+
+                  successors.append((((nextx, nexty), newState), action, 1))
+
 
         self._expanded += 1 # DO NOT CHANGE
+
         return successors
 
     def getCostOfActions(self, actions):
@@ -356,11 +377,30 @@ def cornersHeuristic(state, problem):
     shortest path from the state to a goal of the problem; i.e.  it should be
     admissible (as well as consistent).
     """
+
+    import pdb
     corners = problem.corners # These are the corner coordinates
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
 
-    "*** YOUR CODE HERE ***"
-    return 0 # Default to trivial solution
+    # problem.isGoalState(state)
+    # for corner in corners:
+    #
+    # check all the corners
+    # get the mazeDistance for the closest corner from spot
+    shortestDistance = float('inf')
+    closestCornerIndex = float('inf')
+
+    for index, corner in enumerate(corners):
+        if state[1][index]:
+            continue
+        distance = mazeDistance(state[0], corner, problem.startingGameState)
+        if distance < shortestDistance:
+            shortestDistance = distance
+            # print("shortestDistance:")
+            # print(shortestDistance)
+            closestCornerIndex = index
+    # pdb.set_trace()
+    return shortestDistance# Default to trivial solution
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
@@ -453,8 +493,16 @@ def foodHeuristic(state, problem):
     problem.heuristicInfo['wallCount']
     """
     position, foodGrid = state
-    "*** YOUR CODE HERE ***"
-    return 0
+
+    corners = problem.corners
+
+    furthestCorner = 0
+    for corner in corners:
+        distance = mazeDistance(state[0], corner, problem.startingGameState)
+        if distance > furthestCorner:
+            furthestCorner = distance
+
+    return furthestCorner
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
