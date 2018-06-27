@@ -389,6 +389,8 @@ def cornersHeuristic(state, problem):
     # get the mazeDistance for the closest corner from spot
     shortestDistance = float('inf')
     closestCornerIndex = float('inf')
+    if not False in state[1]:
+        return 0
 
     for index, corner in enumerate(corners):
         if state[1][index]:
@@ -396,11 +398,11 @@ def cornersHeuristic(state, problem):
         distance = mazeDistance(state[0], corner, problem.startingGameState)
         if distance < shortestDistance:
             shortestDistance = distance
-            # print("shortestDistance:")
-            # print(shortestDistance)
             closestCornerIndex = index
     # pdb.set_trace()
     return shortestDistance# Default to trivial solution
+
+    #when i get to the goal state, the heuristic should return 0
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
@@ -493,9 +495,15 @@ def foodHeuristic(state, problem):
     problem.heuristicInfo['wallCount']
     """
     position, foodGrid = state
+    print("problem:")
+    print(problem)
 
-    corners = problem.corners
+    state.start[1]
 
+    #manhattan distance to furthest food
+    # return the distance
+
+    #
     furthestCorner = 0
     for corner in corners:
         distance = mazeDistance(state[0], corner, problem.startingGameState)
