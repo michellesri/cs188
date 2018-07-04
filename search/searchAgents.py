@@ -496,15 +496,13 @@ def foodHeuristic(state, problem):
     """
     position, foodGrid = state
 
-    if False not in state[1]:
-        return 0
-
     #manhattan distance to furthest food
     # return the distance
 
     furthestFood = 0
+
     for food in foodGrid.asList():
-        distance = util.manhattanDistance(position, food)
+        distance = mazeDistance(position, food, problem.startingGameState)
         if distance > furthestFood:
             furthestFood = distance
 
@@ -538,8 +536,7 @@ class ClosestDotSearchAgent(SearchAgent):
         walls = gameState.getWalls()
         problem = AnyFoodSearchProblem(gameState)
 
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return search.breadthFirstSearch(problem)
 
 class AnyFoodSearchProblem(PositionSearchProblem):
     """
@@ -574,8 +571,8 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         """
         x,y = state
 
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return self.food[x][y]
+
 
 def mazeDistance(point1, point2, gameState):
     """
