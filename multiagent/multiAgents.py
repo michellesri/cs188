@@ -83,21 +83,17 @@ class ReflexAgent(Agent):
                 closestFood = food
                 closestFoodDistance = distanceToFood
         
-        mDistance = manhattanDistance(newPos, closestFood)
         total = 0
-        total -= mDistance
-        # print('manhattan distance to food')
-        # print(mDistance)
-        # print('total')
-        # print(total)
+        if closestFood:
+            mDistance = manhattanDistance(newPos, closestFood)
+            total -= mDistance
         
         # ghost positions
-        # do the same thing with variable number of ghosts
         ghostPositions = []
         for ghostState in newGhostStates:
             ghost = ghostState.configuration.pos
+            # import pdb; pdb.set_trace()
             ghostPositions.append(ghost)
-        
         
         # print(ghostPositions)
         closestGhost = None
@@ -107,12 +103,10 @@ class ReflexAgent(Agent):
             if distance < closestGhostDistance:
                 closestGhostDistance = distance
                 closestGhost = ghost
-            # print(distance)
         if closestGhostDistance <= 3:
-            total -= distance * 100
-                
-        
-        total += successorGameState.data.score
+            total -= (3 - closestGhostDistance) * 1000
+
+        total += successorGameState.data.score * 10
         
         if newPos == currentGameState.getPacmanPosition():
             total -= 1
