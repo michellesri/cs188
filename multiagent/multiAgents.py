@@ -82,38 +82,40 @@ class ReflexAgent(Agent):
             if distanceToFood < closestFoodDistance:
                 closestFood = food
                 closestFoodDistance = distanceToFood
-
+        
+        mDistance = manhattanDistance(newPos, closestFood)
         total = 0
+        total -= mDistance
+        # print('manhattan distance to food')
+        # print(mDistance)
+        # print('total')
+        # print(total)
         
         # ghost positions
-        ghostPosition1 = newGhostStates[0].start.pos
-        ghostPosition2 = newGhostStates[1].start.pos
+        # do the same thing with variable number of ghosts
+        ghostPositions = []
+        for ghostState in newGhostStates:
+            ghost = ghostState.configuration.pos
+            ghostPositions.append(ghost)
         
-        # if the ghost is too close, move away
-        distanceToGhost1 = manhattanDistance(newPos, ghostPosition1)
-        distanceToGhost2 = manhattanDistance(newPos, ghostPosition2)
         
-        if newScaredTimes[0] > 0 or newScaredTimes[1] > 0:
-            total += 1
-        elif distanceToGhost1 <= 2 or distanceToGhost2 <= 2:
-            total -= 1
-        
-        posX, posY = newPos #pacman position
-        # print('action')
-        # print(action)
-        # print('pacman position')
-        # print(posX)
-        # print(posY)
-        print('does food exist:')
-        print(newFood)
+        # print(ghostPositions)
+        closestGhost = None
+        closestGhostDistance = float('inf')
+        for ghost in ghostPositions:
+            distance = manhattanDistance(newPos, ghost)
+            if distance < closestGhostDistance:
+                closestGhostDistance = distance
+                closestGhost = ghost
+            # print(distance)
+        if closestGhostDistance <= 3:
+            total -= distance * 100
+                
         
         total += successorGameState.data.score
         
-        print('current pos same as new one:')
-        print(newPos == currentGameState.getPacmanPosition())
         if newPos == currentGameState.getPacmanPosition():
-            total -= 100
-        import pdb; pdb.set_trace()
+            total -= 1
         return total
         # return successorGameState.getScore()
 
