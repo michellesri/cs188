@@ -4,7 +4,7 @@
 # educational purposes provided that (1) you do not distribute or publish
 # solutions, (2) you retain this notice, and (3) you provide clear
 # attribution to UC Berkeley, including a link to http://ai.berkeley.edu.
-# 
+#
 # Attribution Information: The Pacman AI projects were developed at UC Berkeley.
 # The core projects and autograders were primarily created by John DeNero
 # (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
@@ -72,9 +72,10 @@ class ReflexAgent(Agent):
         newFood = successorGameState.getFood()
         newGhostStates = successorGameState.getGhostStates()
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
-        
+
+        if action == 'Stop':
+            return -10000
         #get closest food
-        
         closestFood = None
         closestFoodDistance = float('inf')
         for food in newFood.asList():
@@ -82,20 +83,18 @@ class ReflexAgent(Agent):
             if distanceToFood < closestFoodDistance:
                 closestFood = food
                 closestFoodDistance = distanceToFood
-        
+
         total = 0
         if closestFood:
             mDistance = manhattanDistance(newPos, closestFood)
-            total -= mDistance
-        
+            total -= mDistance * .25
+
         # ghost positions
         ghostPositions = []
         for ghostState in newGhostStates:
             ghost = ghostState.configuration.pos
-            # import pdb; pdb.set_trace()
             ghostPositions.append(ghost)
-        
-        # print(ghostPositions)
+
         closestGhost = None
         closestGhostDistance = float('inf')
         for ghost in ghostPositions:
@@ -106,12 +105,11 @@ class ReflexAgent(Agent):
         if closestGhostDistance <= 3:
             total -= (3 - closestGhostDistance) * 1000
 
-        total += successorGameState.data.score * 10
-        
+        total += successorGameState.data.score
+
         if newPos == currentGameState.getPacmanPosition():
             total -= 1
         return total
-        # return successorGameState.getScore()
 
 def scoreEvaluationFunction(currentGameState):
     """
@@ -147,6 +145,49 @@ class MinimaxAgent(MultiAgentSearchAgent):
     """
       Your minimax agent (question 2)
     """
+    def minNode(self, gameState, counter, ghostCounter):
+
+        if counter == 0 or gameState.isWin() or gameState.isLose():
+            return self.evaluationFunction(gameState)
+
+    #figure out where i can go from this current game state
+        # these are the branches from the root of the tree
+        successors = []
+        for action in gameState.getLegalActions():
+            successors.append(gameState.generateSuccessor(self.index, action))
+        #get successor state and that comes from taking each actions
+        # pass successor state into evaluation function
+        evaluations = []
+        for s in successors:
+            if ghostCounter == 0:
+                evaluations.append(self.maxNode(s, counter, ghostCounter))
+            else:
+                evaluations.append(self.minNode(gameState, counter, ghostCounter - 1))
+
+        # return the successor that returned the max eval number
+        return successors[evaluations.index(min(evaluations))]
+
+    def maxNode(self, gameState, counter, ghostCounter):
+        if ghostCounter == 0:
+            counter -= 1
+
+        if counter == 0 or gameState.isWin() or gameState.isLose():
+            return self.evaluationFunction(gameState)
+
+    #figure out where i can go from this current game state
+        # these are the branches from the root of the tree
+        successors = []
+        for action in gameState.getLegalActions():
+            successors.append(gameState.generateSuccessor(self.index, action))
+        #get successor state and that comes from taking each actions
+        # pass successor state into evaluation function
+        evaluations = []
+        for s in successors:
+            evaluations.append(self.minNode(s, counter, ghostCounter - 1))
+
+        # return the successor that returned the max eval number
+        return successors[evaluations.index(max(evaluations))]
+
 
     def getAction(self, gameState):
         """
@@ -171,9 +212,13 @@ class MinimaxAgent(MultiAgentSearchAgent):
           gameState.isLose():
             Returns whether or not the game state is a losing state
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return self.maxNode(gameState, self.depth, gameState.getNumAgents() - 1)
 
+        #use recursive helper function to make the best choice
+
+        #every time everyone has taken an action, it's depth 1
+
+        #return one of the legal actions
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
       Your minimax agent with alpha-beta pruning (question 3)
@@ -213,4 +258,3 @@ def betterEvaluationFunction(currentGameState):
 
 # Abbreviation
 better = betterEvaluationFunction
-
