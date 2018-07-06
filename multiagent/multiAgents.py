@@ -145,49 +145,32 @@ class MinimaxAgent(MultiAgentSearchAgent):
     """
       Your minimax agent (question 2)
     """
-    def minNode(self, gameState, counter, ghostCounter):
 
-        if counter == 0 or gameState.isWin() or gameState.isLose():
+    def maxNode(self, gameState, numGhosts, plyCounter):
+
+        if gameState.isWin() or gameState.isLose() or plyCounter == 0:
             return self.evaluationFunction(gameState)
 
-    #figure out where i can go from this current game state
-        # these are the branches from the root of the tree
-        successors = []
-        for action in gameState.getLegalActions():
-            successors.append(gameState.generateSuccessor(self.index, action))
-        #get successor state and that comes from taking each actions
-        # pass successor state into evaluation function
         evaluations = []
-        for s in successors:
-            if ghostCounter == 0:
-                evaluations.append(self.maxNode(s, counter, ghostCounter))
-            else:
-                evaluations.append(self.minNode(gameState, counter, ghostCounter - 1))
+        for action in gameState.getLegalActions():
+            evaluations.append(self.minNode(gameState.generateSuccessor(self.index, action), numGhosts, plyCounter))
 
-        # return the successor that returned the max eval number
-        return successors[evaluations.index(min(evaluations))]
+        return max(evaluations)
 
-    def maxNode(self, gameState, counter, ghostCounter):
-        if ghostCounter == 0:
-            counter -= 1
+    def minNode(self, gameState, numGhosts, plyCounter):
 
-        if counter == 0 or gameState.isWin() or gameState.isLose():
+        if gameState.isWin() or gameState.isLose() or plyCounter == 0:
             return self.evaluationFunction(gameState)
 
-    #figure out where i can go from this current game state
-        # these are the branches from the root of the tree
-        successors = []
-        for action in gameState.getLegalActions():
-            successors.append(gameState.generateSuccessor(self.index, action))
-        #get successor state and that comes from taking each actions
-        # pass successor state into evaluation function
         evaluations = []
-        for s in successors:
-            evaluations.append(self.minNode(s, counter, ghostCounter - 1))
+        if numGhosts > 0:
+            for action in gameState.getLegalActions():
+                evaluations.append(self.minNode(gameState.generateSuccessor(self.index, action), numGhosts - 1, plyCounter))
+        else:
+            for action in gameState.getLegalActions():
+                evaluations.append(self.maxNode(gameState.generateSuccessor(self.index, action), gameState.getNumAgents() - 1, plyCounter - 1))
 
-        # return the successor that returned the max eval number
-        return successors[evaluations.index(max(evaluations))]
-
+        return min(evaluations)
 
     def getAction(self, gameState):
         """
@@ -212,12 +195,18 @@ class MinimaxAgent(MultiAgentSearchAgent):
           gameState.isLose():
             Returns whether or not the game state is a losing state
         """
-        return self.maxNode(gameState, self.depth, gameState.getNumAgents() - 1)
+        actions = []
+        evaluations = []
+        for action in gameState.getLegalActions():
+            actions.append(action)
+            evaluations.append(self.maxNode(gameState.generateSuccessor(self.index, action), gameState.getNumAgents() - 1, self.depth))
 
+        maxEvaluationIndex = evaluations.index(max(evaluations))
+        return actions[maxEvaluationIndex]
+        #need to return an action not a value
+        # return self.maxNode(gameState, self.depth, gameState.getNumAgents() - 1)
         #use recursive helper function to make the best choice
-
         #every time everyone has taken an action, it's depth 1
-
         #return one of the legal actions
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
