@@ -146,30 +146,35 @@ class MinimaxAgent(MultiAgentSearchAgent):
       Your minimax agent (question 2)
     """
 
-    def maxNode(self, gameState, numGhosts, plyCounter):
+    def maxNode(self, gameState, numGhosts):
 
-        if gameState.isWin() or gameState.isLose() or plyCounter == 0:
+        legalActions = gameState.getLegalActions()
+
+        if gameState.isWin() or gameState.isLose() or len(legalActions) == 0:
             return self.evaluationFunction(gameState)
 
         evaluations = []
-        for action in gameState.getLegalActions():
-            evaluations.append(self.minNode(gameState.generateSuccessor(self.index, action), numGhosts, plyCounter))
-
+        for action in legalActions:
+            evaluations.append(self.minNode(gameState.generateSuccessor(self.index, action), numGhosts))
+        # print("max evals:")
+        # print(evaluations)
         return max(evaluations)
 
-    def minNode(self, gameState, numGhosts, plyCounter):
+    def minNode(self, gameState, numGhosts):
 
-        if gameState.isWin() or gameState.isLose() or plyCounter == 0:
+        legalActions = gameState.getLegalActions()
+        if gameState.isWin() or gameState.isLose() or len(legalActions) == 0:
             return self.evaluationFunction(gameState)
 
         evaluations = []
-        if numGhosts > 0:
-            for action in gameState.getLegalActions():
-                evaluations.append(self.minNode(gameState.generateSuccessor(self.index, action), numGhosts - 1, plyCounter))
+        if numGhosts > 1:
+            for action in legalActions:
+                evaluations.append(self.minNode(gameState.generateSuccessor(self.index, action), numGhosts - 1))
         else:
-            for action in gameState.getLegalActions():
-                evaluations.append(self.maxNode(gameState.generateSuccessor(self.index, action), gameState.getNumAgents() - 1, plyCounter - 1))
-
+            for action in legalActions:
+                evaluations.append(self.maxNode(gameState.generateSuccessor(self.index, action), gameState.getNumAgents() - 1))
+        # print("min eval:")
+        # print(evaluations)
         return min(evaluations)
 
     def getAction(self, gameState):
@@ -197,10 +202,13 @@ class MinimaxAgent(MultiAgentSearchAgent):
         """
         actions = []
         evaluations = []
+        import pdb; pdb.set_trace()
         for action in gameState.getLegalActions():
             actions.append(action)
-            evaluations.append(self.maxNode(gameState.generateSuccessor(self.index, action), gameState.getNumAgents() - 1, self.depth))
+            evaluations.append(self.minNode(gameState.generateSuccessor(self.index, action), gameState.getNumAgents() - 1, self.depth - 1))
 
+        print("printing evaluations!!!:")
+        print(evaluations)
         maxEvaluationIndex = evaluations.index(max(evaluations))
         return actions[maxEvaluationIndex]
         #need to return an action not a value
@@ -208,6 +216,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
         #use recursive helper function to make the best choice
         #every time everyone has taken an action, it's depth 1
         #return one of the legal actions
+
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
       Your minimax agent with alpha-beta pruning (question 3)
