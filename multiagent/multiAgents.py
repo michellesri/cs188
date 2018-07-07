@@ -147,7 +147,6 @@ class MinimaxAgent(MultiAgentSearchAgent):
     """
 
     def maxNode(self, gameState, numGhosts, plyCounter):
-
         if gameState.isWin() or gameState.isLose() or plyCounter == 0:
             return self.evaluationFunction(gameState)
 
@@ -161,19 +160,20 @@ class MinimaxAgent(MultiAgentSearchAgent):
         return max(evaluations)
 
     def minNode(self, gameState, numGhosts, plyCounter):
-
         if gameState.isWin() or gameState.isLose() or plyCounter == 0:
             return self.evaluationFunction(gameState)
 
         evaluations = []
 
-        legalActions = gameState.getLegalActions(numGhosts)
+        totalNumGhosts = gameState.getNumAgents() - 1
+        currentGhostIndex = totalNumGhosts - numGhosts + 1
+        legalActions = gameState.getLegalActions(currentGhostIndex)
         if numGhosts > 1:
             for action in legalActions:
-                evaluations.append(self.minNode(gameState.generateSuccessor(numGhosts, action), numGhosts - 1, plyCounter))
+                evaluations.append(self.minNode(gameState.generateSuccessor(currentGhostIndex, action), numGhosts - 1, plyCounter))
         else:
             for action in legalActions:
-                evaluations.append(self.maxNode(gameState.generateSuccessor(numGhosts, action), gameState.getNumAgents() - 1, plyCounter - 1))
+                evaluations.append(self.maxNode(gameState.generateSuccessor(currentGhostIndex, action), totalNumGhosts, plyCounter - 1))
         # print("min eval:")
         # print(evaluations)
         return min(evaluations)
