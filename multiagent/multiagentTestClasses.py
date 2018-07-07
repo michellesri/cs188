@@ -4,7 +4,7 @@
 # educational purposes provided that (1) you do not distribute or publish
 # solutions, (2) you retain this notice, and (3) you provide clear
 # attribution to UC Berkeley, including a link to http://ai.berkeley.edu.
-# 
+#
 # Attribution Information: The Pacman AI projects were developed at UC Berkeley.
 # The core projects and autograders were primarily created by John DeNero
 # (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
@@ -180,6 +180,8 @@ class GradingAgent(Agent):
                 self.actionsConsistentWithOptimal[i] = False
             if studentAction[1] == int(optimalActions[i][1]):
                 curRightStatesExplored = True
+        # if not curRightStatesExplored:
+        #     import pdb; pdb.set_trace()
         if not curRightStatesExplored and self.wrongStatesExplored < 0:
             self.wrongStatesExplored = 1
         for i in range(len(altDepthActions)):
@@ -523,7 +525,3 @@ class EvalAgentTest(testClasses.TestCase):
         handle.write('# File intentionally blank.\n')
         handle.close()
         return True
-
-
-
-
