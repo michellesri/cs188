@@ -312,8 +312,6 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         if gameState.isWin() or gameState.isLose() or plyCounter == 0:
             return self.evaluationFunction(gameState)
 
-        # evaluations = []
-
         totalNumGhosts = gameState.getNumAgents() - 1
         currentGhostIndex = totalNumGhosts - numGhosts + 1
         legalActions = gameState.getLegalActions(currentGhostIndex)
@@ -356,8 +354,60 @@ def betterEvaluationFunction(currentGameState):
 
       DESCRIPTION: <write something here so we know what you did>
     """
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    # successorGameState = currentGameState.generatePacmanSuccessor(action)
+    newPos = currentGameState.getPacmanPosition()
+    newFood = currentGameState.getFood()
+    newGhostStates = currentGameState.getGhostStates()
+    newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
+    # print newGhostStates
+    # import pdb; pdb.set_trace()
+
+    closestFood = None
+    closestFoodDistance = float('inf')
+    for food in newFood.asList():
+        distanceToFood = manhattanDistance(food, newPos)
+        if distanceToFood < closestFoodDistance:
+            closestFood = food
+            closestFoodDistance = distanceToFood
+
+    total = 0
+    if closestFood:
+        mDistance = manhattanDistance(newPos, closestFood)
+        total -= mDistance * .25
+
+    # ghost positions
+    ghostPositions = []
+    for ghostState in newGhostStates:
+        ghost = ghostState.configuration.pos
+        ghostPositions.append(ghost)
+
+    scaredGhostIndex = newScaredTimes.index(max(newScaredTimes))
+    ghostScared = newScaredTimes[scaredGhostIndex]
+    closestGhost = None
+    closestGhostDistance = float('inf')
+    for ghost in ghostPositions:
+        distance = manhattanDistance(newPos, ghost)
+        if distance < closestGhostDistance:
+            closestGhostDistance = distance
+            closestGhost = ghost
+    if not ghostScared and closestGhostDistance <= 3:
+        total -= (3 - closestGhostDistance) * 1000
+    else:
+        for time in newScaredTimes:
+            scaredGhostPosition = newGhostStates[newScaredTimes.index(time)].configuration.pos
+            distanceToScaredGhost = manhattanDistance(newPos, scaredGhostPosition)
+            if time > 0 and distanceToScaredGhost < 10:
+                total += distanceToScaredGhost
+
+    total += currentGameState.data.score
+
+    if newPos == currentGameState.getPacmanPosition():
+        total -= 1
+
+    # distanceToScaredGhost = manhattanDistance(newPos, newGhostStates[scaredGhostIndex].configuration.pos)
+    # if newScaredTimes[scaredGhostIndex] > 0:
+    #     total *= distanceToScaredGhost
+    return total
 # Abbreviation
 better = betterEvaluationFunction
