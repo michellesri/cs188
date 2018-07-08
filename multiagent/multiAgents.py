@@ -275,11 +275,17 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         # import pdb; pdb.set_trace()
         alpha = - float('inf')
         beta = float('inf')
+        v = - float('inf')
         for action in gameState.getLegalActions():
             actions.append(action)
             numGhosts = gameState.getNumAgents() - 1
             successorState = gameState.generateSuccessor(self.index, action)
-            evaluations.append(self.minNode(successorState, numGhosts, self.depth, alpha, beta))
+            v = max(v, self.minNode(successorState, numGhosts, self.depth, alpha, beta))
+            if v > beta:
+                return v
+            alpha = max(alpha, v)
+
+            evaluations.append(v)
 
         maxEvaluationIndex = evaluations.index(max(evaluations))
         return actions[maxEvaluationIndex]
