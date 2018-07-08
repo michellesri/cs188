@@ -155,8 +155,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
 
         for action in legalActions:
             evaluations.append(self.minNode(gameState.generateSuccessor(self.index, action), numGhosts, plyCounter))
-        # print("max evals:")
-        # print(evaluations)
+
         return max(evaluations)
 
     def minNode(self, gameState, numGhosts, plyCounter):
@@ -174,8 +173,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
         else:
             for action in legalActions:
                 evaluations.append(self.maxNode(gameState.generateSuccessor(currentGhostIndex, action), totalNumGhosts, plyCounter - 1))
-        # print("min eval:")
-        # print(evaluations)
+
         return min(evaluations)
 
     def getAction(self, gameState):
@@ -261,8 +259,6 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
                 if v < alpha:
                     return v
                 beta = min(beta, v)
-        # print("min eval:")
-        # print(evaluations)
         return v
 
     def getAction(self, gameState):
@@ -272,7 +268,6 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         actions = []
         evaluations = []
 
-        # import pdb; pdb.set_trace()
         alpha = - float('inf')
         beta = float('inf')
         v = - float('inf')
@@ -304,8 +299,7 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
 
         for action in legalActions:
             evaluations.append(self.minNode(gameState.generateSuccessor(self.index, action), numGhosts, plyCounter))
-        # print("max evals:")
-        # print(evaluations)
+
         return max(evaluations)
 
     def minNode(self, gameState, numGhosts, plyCounter):
@@ -336,14 +330,11 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         actions = []
         evaluations = []
 
-        # import pdb; pdb.set_trace()
         for action in gameState.getLegalActions():
             actions.append(action)
             numGhosts = gameState.getNumAgents() - 1
             evaluations.append(self.minNode(gameState.generateSuccessor(self.index, action), numGhosts, self.depth))
-        #
-        # print("\n")
-        # print(gameState)
+
         maxEvaluationIndex = evaluations.index(max(evaluations))
         return actions[maxEvaluationIndex]
 
@@ -352,16 +343,15 @@ def betterEvaluationFunction(currentGameState):
       Your extreme ghost-hunting, pellet-nabbing, food-gobbling, unstoppable
       evaluation function (question 5).
 
-      DESCRIPTION: <write something here so we know what you did>
+      DESCRIPTION: chase after ghost if the manhattan distance to it is < 10
+                    and the ghost is scared.
+                    go towards closest foods.
+                    run away from ghosts <= 3 distance away
     """
-    # successorGameState = currentGameState.generatePacmanSuccessor(action)
     newPos = currentGameState.getPacmanPosition()
     newFood = currentGameState.getFood()
     newGhostStates = currentGameState.getGhostStates()
     newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
-
-    # print newGhostStates
-    # import pdb; pdb.set_trace()
 
     closestFood = None
     closestFoodDistance = float('inf')
@@ -384,13 +374,11 @@ def betterEvaluationFunction(currentGameState):
 
     scaredGhostIndex = newScaredTimes.index(max(newScaredTimes))
     ghostScared = newScaredTimes[scaredGhostIndex]
-    closestGhost = None
     closestGhostDistance = float('inf')
     for ghost in ghostPositions:
         distance = manhattanDistance(newPos, ghost)
         if distance < closestGhostDistance:
             closestGhostDistance = distance
-            closestGhost = ghost
     if not ghostScared and closestGhostDistance <= 3:
         total -= (3 - closestGhostDistance) * 1000
     else:
@@ -405,9 +393,6 @@ def betterEvaluationFunction(currentGameState):
     if newPos == currentGameState.getPacmanPosition():
         total -= 1
 
-    # distanceToScaredGhost = manhattanDistance(newPos, newGhostStates[scaredGhostIndex].configuration.pos)
-    # if newScaredTimes[scaredGhostIndex] > 0:
-    #     total *= distanceToScaredGhost
     return total
 # Abbreviation
 better = betterEvaluationFunction
