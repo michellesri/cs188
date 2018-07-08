@@ -312,20 +312,21 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         if gameState.isWin() or gameState.isLose() or plyCounter == 0:
             return self.evaluationFunction(gameState)
 
-        evaluations = []
+        # evaluations = []
 
         totalNumGhosts = gameState.getNumAgents() - 1
         currentGhostIndex = totalNumGhosts - numGhosts + 1
         legalActions = gameState.getLegalActions(currentGhostIndex)
+        sum = 0.0
         if numGhosts > 1:
             for action in legalActions:
-                evaluations.append(self.minNode(gameState.generateSuccessor(currentGhostIndex, action), numGhosts - 1, plyCounter))
+                sum += float(self.minNode(gameState.generateSuccessor(currentGhostIndex, action), numGhosts - 1, plyCounter))
         else:
             for action in legalActions:
-                evaluations.append(self.maxNode(gameState.generateSuccessor(currentGhostIndex, action), totalNumGhosts, plyCounter - 1))
+                sum += float(self.maxNode(gameState.generateSuccessor(currentGhostIndex, action), totalNumGhosts, plyCounter - 1))
         # print("min eval:")
         # print(evaluations)
-        return min(evaluations)
+        return sum / (len(legalActions))
 
     def getAction(self, gameState):
         """
@@ -342,9 +343,9 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
             actions.append(action)
             numGhosts = gameState.getNumAgents() - 1
             evaluations.append(self.minNode(gameState.generateSuccessor(self.index, action), numGhosts, self.depth))
-
-        print("\n")
-        print(gameState)
+        #
+        # print("\n")
+        # print(gameState)
         maxEvaluationIndex = evaluations.index(max(evaluations))
         return actions[maxEvaluationIndex]
 
