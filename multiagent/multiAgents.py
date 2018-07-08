@@ -225,12 +225,64 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
       Your minimax agent with alpha-beta pruning (question 3)
     """
 
+    def maxNode(self, gameState, numGhosts, plyCounter, alpha, beta):
+        if gameState.isWin() or gameState.isLose() or plyCounter == 0:
+            return self.evaluationFunction(gameState)
+
+        legalActions = gameState.getLegalActions()
+        v = - float('inf')
+        for action in legalActions:
+            successorState = gameState.generateSuccessor(self.index, action)
+            v = max(v, self.minNode(successorState, numGhosts, plyCounter, alpha, beta))
+            if v > beta:
+                return v
+            alpha = max(alpha, v)
+        return v
+
+    def minNode(self, gameState, numGhosts, plyCounter, alpha, beta):
+        if gameState.isWin() or gameState.isLose() or plyCounter == 0:
+            return self.evaluationFunction(gameState)
+
+        totalNumGhosts = gameState.getNumAgents() - 1
+        currentGhostIndex = totalNumGhosts - numGhosts + 1
+        legalActions = gameState.getLegalActions(currentGhostIndex)
+        v = float('inf')
+        if numGhosts > 1:
+            for action in legalActions:
+                successorState = gameState.generateSuccessor(currentGhostIndex, action)
+                v = min(v, self.minNode(successorState, numGhosts - 1, plyCounter, alpha, beta))
+                if v < alpha:
+                    return v
+                beta = min(beta, v)
+        else:
+            for action in legalActions:
+                successorState = gameState.generateSuccessor(currentGhostIndex, action)
+                v = min(v, self.maxNode(successorState, totalNumGhosts, plyCounter - 1, alpha, beta))
+                if v < alpha:
+                    return v
+                beta = min(beta, v)
+        # print("min eval:")
+        # print(evaluations)
+        return v
+
     def getAction(self, gameState):
         """
           Returns the minimax action using self.depth and self.evaluationFunction
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        actions = []
+        evaluations = []
+
+        # import pdb; pdb.set_trace()
+        alpha = - float('inf')
+        beta = float('inf')
+        for action in gameState.getLegalActions():
+            actions.append(action)
+            numGhosts = gameState.getNumAgents() - 1
+            successorState = gameState.generateSuccessor(self.index, action)
+            evaluations.append(self.minNode(successorState, numGhosts, self.depth, alpha, beta))
+
+        maxEvaluationIndex = evaluations.index(max(evaluations))
+        return actions[maxEvaluationIndex]
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """
@@ -276,8 +328,19 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
           All ghosts should be modeled as choosing uniformly at random from their
           legal moves.
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        actions = []
+        evaluations = []
+
+        # import pdb; pdb.set_trace()
+        for action in gameState.getLegalActions():
+            actions.append(action)
+            numGhosts = gameState.getNumAgents() - 1
+            evaluations.append(self.minNode(gameState.generateSuccessor(self.index, action), numGhosts, self.depth))
+
+        print("\n")
+        print(gameState)
+        maxEvaluationIndex = evaluations.index(max(evaluations))
+        return actions[maxEvaluationIndex]
 
 def betterEvaluationFunction(currentGameState):
     """
