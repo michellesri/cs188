@@ -74,7 +74,6 @@ class ValueIterationAgent(ValueEstimationAgent):
                         #set self.values at the end
                 dictionary[state] = maxVal
             self.values = dictionary
-        print self.values
 
     def getValue(self, state):
         """
@@ -92,7 +91,6 @@ class ValueIterationAgent(ValueEstimationAgent):
         for transition, probability in self.mdp.getTransitionStatesAndProbs(state, action):
             reward = self.mdp.getReward(state, action, transition)
             totalValue += probability * (reward + (self.discount * self.getValue(transition)))
-        
         return totalValue
         # page 6 Q-learnnig. compute q* with given v*
 
@@ -152,7 +150,22 @@ class AsynchronousValueIterationAgent(ValueIterationAgent):
         ValueIterationAgent.__init__(self, mdp, discount, iterations)
 
     def runValueIteration(self):
-        "*** YOUR CODE HERE ***"
+        states = self.mdp.getStates()
+        for i in range(self.iterations):
+            dictionary = self.values.copy()
+            # print dictionary
+            state = states[i % len(states)]
+            # print state
+            if state == self.mdp.isTerminal(state):
+                continue
+            maxValue = - float('inf')
+            possibleActions = self.mdp.getPossibleActions(state)
+            for action in possibleActions:
+                totalValue = self.computeQValueFromValues(state, action)
+                if totalValue > maxValue:
+                    maxValue = totalValue
+                    dictionary[state] = maxValue
+            self.values = dictionary
 
 class PrioritizedSweepingValueIterationAgent(AsynchronousValueIterationAgent):
     """
