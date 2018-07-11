@@ -122,9 +122,8 @@ class QLearningAgent(ReinforcementAgent):
           it will be called on your behalf
         """
         
-        self.qValues[(state, action)] = (1 - self.alpha) * \
-            self.getQValue(state, action) + self.alpha * \
-            (reward + self.discount * self.computeValueFromQValues(nextState))
+        self.qValues[(state, action)] = ((1-self.alpha) * self.getQValue(state,action)) + \
+         self.alpha * (reward + self.discount * self.computeValueFromQValues(nextState))
 
     def getPolicy(self, state):
         return self.computeActionFromQValues(state)
@@ -161,7 +160,7 @@ class PacmanQAgent(QLearningAgent):
         method.
         """
         action = QLearningAgent.getAction(self,state)
-        self.doAction(state,action)
+        self.doAction(state, action)
         return action
 
 
@@ -186,16 +185,27 @@ class ApproximateQAgent(PacmanQAgent):
           Should return Q(state,action) = w * featureVector
           where * is the dotProduct operator
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        features = self.featExtractor.getFeatures(state, action)
+        qVal = 0
+        for feat in features:
+            weights = self.getWeights()
+            qVal += features[feat] * weights[feat]
+        return qVal
 
     def update(self, state, action, nextState, reward):
         """
            Should update your weights based on transition
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
-
+        features = self.featExtractor.getFeatures(state, action)
+        weights = self.getWeights()
+        max_q_val = self.computeValueFromQValues(nextState)
+        q_val = self.getQValue(state, action)
+        diff = reward + self.discount * max_q_val - q_val
+        
+        for feat in features:
+            prev_weight = weights[feat]
+            weights[feat] = prev_weight + self.alpha * diff * features[feat]
+            
     def final(self, state):
         "Called at the end of each game."
         # call the super-class final method
@@ -204,5 +214,4 @@ class ApproximateQAgent(PacmanQAgent):
         # did we finish training?
         if self.episodesSoFar == self.numTraining:
             # you might want to print your weights here for debugging
-            "*** YOUR CODE HERE ***"
             pass
