@@ -51,13 +51,9 @@ class QLearningAgent(ReinforcementAgent):
           Should return 0.0 if we have never seen a state
           or the Q node value otherwise
         """
-        "*** YOUR CODE HERE ***"
-        stateActionItem = self.qValues[(state, action)]
-        if not stateActionItem:
+        if (state, action) not in self.qValues:
             return 0.0
         return self.qValues[(state, action)]
-
-
 
     def computeValueFromQValues(self, state):
         """
@@ -86,8 +82,8 @@ class QLearningAgent(ReinforcementAgent):
             
         maxAction = None
         maxValue = - float ('inf')
-        for action in self.mdp.getPossibleActions(state):
-            qvalue = self.computeQValueFromValues(state, action)
+        for action in legalActions:
+            qvalue = self.getQValue(state, action)
             if qvalue > maxValue:
                 maxValue = qvalue
                 maxAction = action
@@ -125,8 +121,10 @@ class QLearningAgent(ReinforcementAgent):
           NOTE: You should never call this function,
           it will be called on your behalf
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        
+        self.qValues[(state, action)] = (1 - self.alpha) * \
+            self.getQValue(state, action) + self.alpha * \
+            (reward + self.discount * self.computeValueFromQValues(nextState))
 
     def getPolicy(self, state):
         return self.computeActionFromQValues(state)
